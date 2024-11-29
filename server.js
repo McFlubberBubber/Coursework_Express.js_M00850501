@@ -3,8 +3,8 @@ const propertiesReader = require("properties-reader");
 const path = require("path");
 const fs = require("fs");
 const { ObjectId } = require("mongodb");
-const cors = require('cors'); // Enables Cross-Origin Resource Sharing
-const app = express(); // Calls the express function to start a new Express application
+const cors = require('cors');
+const app = express(); 
 
 // Load properties from db.properties
 let propertiesPath = path.resolve(__dirname, "database_config/db.properties");
@@ -40,6 +40,9 @@ console.log("Available collections:", collections.map(c => c.name));
 console.error("Error connecting to MongoDB:", err);
 process.exit(1); // Exit if connection fails
 });
+
+//Using CORS
+app.use(cors());
 
 // Middleware to log requests
 app.use((req, res, next) => {
