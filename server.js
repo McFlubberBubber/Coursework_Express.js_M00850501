@@ -67,6 +67,12 @@ app.use((req, res, next) => {
       }
     });
 
+//Using express to parse JSON
+app.use(express.json());
+
+//Using express to serve static files for our images
+app.use(express.static(path.join(__dirname, "public")));
+
 //Console log for listening to local port
 const port = process.env.PORT || 3000;
 app.listen(port, function() {
