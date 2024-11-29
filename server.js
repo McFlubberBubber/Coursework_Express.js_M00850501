@@ -46,26 +46,59 @@ app.use(cors());
 
 // Middleware to log requests
 app.use((req, res, next) => {
-    console.log("Request URL:", req.url);
-    console.log("Request Date:", new Date());
-    next();
-    });
+  console.log("Request URL:", req.url);
+  console.log("Request Date:", new Date());
+  next();
+});
 
-    // MongoDB route for collections
-    app.param("collectionName", function (req, res, next, collectionName) {
-    req.collection = db.collection(collectionName);
-    return next();
-    });
+// MongoDB route for collections
+app.param("collectionName", function (req, res, next, collectionName) {
+  req.collection = db.collection(collectionName);
+  return next();
+});
 
-    //Route to fetch documents from specific collection
-    app.get("/collections/:collectionName", async (req, res, next) => {
-    try {
+//Route to fetch documents from specific collection
+app.get("/collections/:collectionName", async (req, res, next) => {
+  try {
     const results = await req.collection.find({}).toArray();
     res.json(results);
-    } catch (error) {
+  } catch (error) {
     next(error);
-      }
-    });
+    }
+});
+
+// POST route to add a new order
+app.post("/collections/:collectionName", async (req, res, next) => {
+  try {
+    const result = await req.collection.insertOne(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error("Error inserting order:", error);
+    res.status(500).send("Error inserting order");
+  }
+});
+
+// PUT route to update course spaces
+app.put("/collections/:collectionName/:id", async (req, res, next) => {
+  const { id } = req.params;
+  const updateData = req.body;
+  
+  try {
+    const result = await req.collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateData }
+    );
+    if (result.modifiedCount === 0) {
+      res.status(404).send("Course not found or already updated");
+    } else {
+      res.json(result);
+    }
+  } catch (error) {
+    console.error("Error updating course spaces:", error);
+    res.status(500).send("Error updating course spaces");
+  }
+});
+
 
 //Using express to parse JSON
 app.use(express.json());
