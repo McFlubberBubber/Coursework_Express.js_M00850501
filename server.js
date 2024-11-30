@@ -44,6 +44,12 @@ process.exit(1); // Exit if connection fails
 //Using CORS
 app.use(cors());
 
+//Using express to parse JSON
+app.use(express.json());
+
+//Using express to serve static files for our images
+app.use(express.static(path.join(__dirname, "public")));
+
 // Middleware to log requests
 app.use((req, res, next) => {
   console.log("Request URL:", req.url);
@@ -98,13 +104,6 @@ app.put("/collections/:collectionName/:id", async (req, res, next) => {
     res.status(500).send("Error updating course spaces");
   }
 });
-
-
-//Using express to parse JSON
-app.use(express.json());
-
-//Using express to serve static files for our images
-app.use(express.static(path.join(__dirname, "public")));
 
 //Console log for listening to local port
 const port = process.env.PORT || 3000;
