@@ -1,4 +1,4 @@
-const express = require("express"); // Requires the Express module
+const express = require("express"); 
 const propertiesReader = require("properties-reader");
 const path = require("path");
 const fs = require("fs");
@@ -106,49 +106,44 @@ app.put("/collections/:collectionName/:id", async (req, res, next) => {
 });
 
 // GET route to search for courses
-app.get(
-  "/collections/:collectionName/search/:query",
-  async (req, res, next) => {
-    try {
-      const { collectionName, query } = req.params;
+app.get("/collections/:collectionName/search/:query", async (req, res, next) => {
+  try {
+    const { collectionName, query } = req.params;
 
-      // Build the regex search pattern
-      const searchRegex = { $regex: query, $options: "i" };
+    // Define fields to search in
+    const searchAttributes = ["subject", "location", "price", "spaces"];
 
-      // Define fields to search in
-      const searchAttributes = ["subject", "location", "price", "spaces"];
+    // Build the match query for all fields
+    const matchQuery = {
+      $or: searchAttributes.map((field) => ({
+        [field]: { $regex: query, $options: "i" },
+      })),
+    };
 
-      // Build the match query for all fields
-      const matchQuery = {
-        $or: searchAttributes.map((field) => ({
-          [field]: { $regex: query, $options: "i" },
-        })),
-      };
-      const results = await req.collection.aggregate([
-        {
-          $addFields: {
-            price: { $toString: "$price" }, 
-            spaces: { $toString: "$spaces" }, 
-          },
+    const results = await req.collection.aggregate([
+      {
+        $addFields: {
+          price: { $toString: "$price" }, 
+          spaces: { $toString: "$spaces" },
         },
-        {
-          $match: matchQuery,
-        },
-      ]).toArray();
+      },
+      {
+        $match: matchQuery,
+      },
+    ]).toArray();
 
-      if (results.length === 0) {
-        return res.status(404).send({ message: "No matching results found." });
-      }
-
-      // Send the results
-      console.log("Search results:", results);
-      res.send(results);
-    } catch (err) {
-      console.error("Error performing search:", err);
-      next(err); // Pass error to middleware
+    if (results.length === 0) {
+      return res.status(404).send({ message: "No matching results found." });
     }
+
+    // Send the results
+    res.send(results);
+  } catch (err) {
+    console.error("Error performing search:", err);
+    next(err); // Pass error to middleware
   }
-);
+});
+
 
 //Console log for listening to local port
 const port = process.env.PORT || 3000;
