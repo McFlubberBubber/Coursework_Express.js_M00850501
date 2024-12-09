@@ -1,7 +1,6 @@
 const express = require("express"); 
 const propertiesReader = require("properties-reader");
 const path = require("path");
-const fs = require("fs");
 const { ObjectId } = require("mongodb");
 const cors = require('cors');
 const app = express(); 
@@ -143,7 +142,6 @@ app.get("/collections/:collectionName/search/:query", async (req, res, next) => 
     next(err); // Pass error to middleware
   }
 });
-
 
 //Console log for listening to local port
 const port = process.env.PORT || 3000;
